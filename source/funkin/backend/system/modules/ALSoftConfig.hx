@@ -23,60 +23,61 @@ import sys.FileSystem;
 #if (!macro && android)
 @:build(funkin.backend.system.modules.ALSoftConfig.setupConfig())
 #end
-class ALSoftConfig
-{
-	#if (desktop || android)
-	#if android
-	private static final ANDROID_OPENAL_CONFIG:String = '';
-	#end
+class ALSoftConfig {
+    #if (desktop || android)
+    #if android
+    private static final ANDROID_OPENAL_CONFIG:String = ''; // Configuração interna
+    #end
 
-	public static function init():Void
-	{
-		var origin:String = #if android System.applicationStorageDirectory #elseif hl Sys.getCwd() #else Sys.programPath() #end;
+    public static function init():Void {
+        var origin:String = #if android "assets/openal/" #elseif hl Sys.getCwd() #else Sys.programPath() #end;
 
-		var configPath:String = Path.directory(Path.withoutExtension(origin));
-		#if windows
-		configPath += "/plugins/alsoft.ini";
-		#elseif mac
-		configPath = Path.directory(configPath) + "/Resources/plugins/alsoft.conf";
-		#elseif android
-		configPath = origin + 'openal/alsoft.conf';
-		FileSystem.createDirectory(Path.directory(configPath));
-		File.saveContent(configPath, ANDROID_OPENAL_CONFIG);
-		JNI.createStaticMethod('org/libsdl/app/SDLActivity', 'nativeSetenv', '(Ljava/lang/String;Ljava/lang/String;)V')("ALSOFT_CONF", configPath);
-		#else
-		configPath += "/plugins/alsoft.conf";
-		#end
+        var configPath:String = Path.directory(Path.withoutExtension(origin));
+        #if windows
+        configPath += "/plugins/alsoft.ini";
+        #elseif mac
+        configPath = Path.directory(configPath) + "/Resources/plugins/alsoft.conf";
+        #elseif android
+        configPath = origin + "alsoft.conf";
 
-		#if !android
-		Sys.putEnv("ALSOFT_CONF", configPath);
-		#end
-	}
-	#end
+        // Comentado para evitar manipulação de arquivos externos
+        /*
+        FileSystem.createDirectory(Path.directory(configPath));
+        File.saveContent(configPath, ANDROID_OPENAL_CONFIG);
+        */
 
-	#if macro
-	public static function setupConfig()
-	{
-		var fields = Context.getBuildFields();
-		var pos = Context.currentPos();
+        JNI.createStaticMethod('org/libsdl/app/SDLActivity', 'nativeSetenv', '(Ljava/lang/String;Ljava/lang/String;)V')("ALSOFT_CONF", configPath);
+        #else
+        configPath += "/plugins/alsoft.conf";
+        #end
 
-		if (!FileSystem.exists('alsoft.txt')) return fields;
+        #if !android
+        Sys.putEnv("ALSOFT_CONF", configPath);
+        #end
+    }
+    #end
 
-		var newFields = fields.copy();
-		for (i => field in fields)
-		{
-			if (field.name == 'ANDROID_OPENAL_CONFIG')
-			{
-				newFields[i] = {
-					name: 'ANDROID_OPENAL_CONFIG',
-					access: [APrivate, AStatic, AFinal],
-					kind: FVar(macro :String, macro $v{File.getContent('alsoft.txt')}),
-					pos: pos,
-				};
-			}
-		}
+    #if macro
+    public static function setupConfig() {
+        var fields = Context.getBuildFields();
+        var pos = Context.currentPos();
 
-		return newFields;
-	}
-	#end
+        // Ajustado para verificar apenas arquivos internos
+        if (!LimeAssets.exists("assets/alsoft.txt")) return fields;
+
+        var newFields = fields.copy();
+        for (i => field in fields) {
+            if (field.name == 'ANDROID_OPENAL_CONFIG') {
+                newFields[i] = {
+                    name: 'ANDROID_OPENAL_CONFIG',
+                    access: [APrivate, AStatic, AFinal],
+                    kind: FVar(macro :String, macro $v{LimeAssets.getText("assets/alsoft.txt")}),
+                    pos: pos,
+                };
+            }
+        }
+
+        return newFields;
+    }
+    #end
 }

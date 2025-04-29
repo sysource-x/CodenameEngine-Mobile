@@ -15,119 +15,118 @@ import flixel.graphics.FlxGraphic;
 
 using StringTools;
 
-class Paths
-{
-	/**
-	 * Preferred sound extension for the game's audio files.
-	 * Currently is set to `mp3` for web targets, and `ogg` for other targets.
-	 */
-	inline public static final SOUND_EXT = #if web "mp3" #else "ogg" #end;
+class Paths {
+    /**
+     * Preferred sound extension for the game's audio files.
+     * Currently is set to `mp3` for web targets, and `ogg` for other targets.
+     */
+    inline public static final SOUND_EXT = #if web "mp3" #else "ogg" #end;
 
-	public static var assetsTree:AssetsLibraryList;
+    public static var assetsTree:AssetsLibraryList;
 
-	public static var tempFramesCache:Map<String, FlxFramesCollection> = [];
+    public static var tempFramesCache:Map<String, FlxFramesCollection> = [];
 
-	public static function init() {
-		FlxG.signals.preStateSwitch.add(function() {
-			tempFramesCache.clear();
-		});
-	}
+    public static function init() {
+        FlxG.signals.preStateSwitch.add(function() {
+            tempFramesCache.clear();
+        });
+    }
 
-	public static inline function getPath(file:String, ?library:String)
-		return library != null ? '$library:assets/$library/$file' : 'assets/$file';
+    public static inline function getPath(file:String, ?library:String)
+        return library != null ? '$library:assets/$library/$file' : 'assets/$file';
 
-	public static inline function video(key:String, ?ext:String = "mp4")
-		return getPath('videos/$key.$ext');
+    public static inline function video(key:String, ?ext:String = "mp4")
+        return Assets.getBytes("assets/videos/$key.$ext");
 
-	public static inline function ndll(key:String)
-		return getPath('ndlls/$key.ndll');
+    public static inline function ndll(key:String)
+        return Assets.getBytes("assets/ndlls/$key.ndll");
 
-	inline static public function file(file:String, ?library:String)
-		return getPath(file, library);
+    inline static public function file(file:String, ?library:String)
+        return Assets.getBytes(file, library);
 
-	inline static public function txt(key:String, ?library:String)
-		return getPath('data/$key.txt', library);
+    inline static public function txt(key:String, ?library:String)
+        return Assets.getBytes("assets/data/$key.txt", library);
 
-	inline static public function pack(key:String, ?library:String)
-		return getPath('data/$key.pack', library);
+    inline static public function pack(key:String, ?library:String)
+        return Assets.getBytes("assets/data/$key.pack", library);
 
-	inline static public function ini(key:String, ?library:String)
-		return getPath('data/$key.ini', library);
+    inline static public function ini(key:String, ?library:String)
+        return Assets.getBytes("assets/data/$key.ini", library);
 
-	inline static public function fragShader(key:String, ?library:String)
-		return getPath('shaders/$key.frag', library);
+    inline static public function fragShader(key:String, ?library:String)
+        return Assets.getBytes("assets/shaders/$key.frag", library);
 
-	inline static public function vertShader(key:String, ?library:String)
-		return getPath('shaders/$key.vert', library);
+    inline static public function vertShader(key:String, ?library:String)
+        return Assets.getBytes("assets/shaders/$key.vert", library);
 
-	inline static public function xml(key:String, ?library:String)
-		return getPath('data/$key.xml', library);
+    inline static public function xml(key:String, ?library:String)
+        return Assets.getBytes("assets/data/$key.xml", library);
 
-	inline static public function json(key:String, ?library:String)
-		return getPath('data/$key.json', library);
+    inline static public function json(key:String, ?library:String)
+        return Assets.getBytes("assets/data/$key.json", library);
 
-	inline static public function ps1(key:String, ?library:String)
-		return getPath('data/$key.ps1', library);
+    inline static public function ps1(key:String, ?library:String)
+        return Assets.getBytes("assets/data/$key.ps1", library);
 
-	static public function sound(key:String, ?library:String)
-		return getPath('sounds/$key.$SOUND_EXT', library);
+    static public function sound(key:String, ?library:String)
+        return Assets.getBytes("assets/sounds/$key.$SOUND_EXT", library);
 
-	inline static public function soundRandom(key:String, min:Int, max:Int, ?library:String)
-		return sound(key + FlxG.random.int(min, max), library);
+    inline static public function soundRandom(key:String, min:Int, max:Int, ?library:String)
+        return Assets.getBytes(key + FlxG.random.int(min, max), library);
 
-	inline static public function music(key:String, ?library:String)
-		return getPath('music/$key.$SOUND_EXT', library);
+    inline static public function music(key:String, ?library:String)
+        return Assets.getBytes("assets/music/$key.$SOUND_EXT", library);
 
-	inline static public function voices(song:String, difficulty:String = "normal", ?prefix:String = "")
-	{
-		var diff = getPath('songs/${song.toLowerCase()}/song/Voices$prefix-${difficulty.toLowerCase()}.$SOUND_EXT', null);
-		return OpenFlAssets.exists(diff) ? diff : getPath('songs/${song.toLowerCase()}/song/Voices$prefix.$SOUND_EXT', null);
-	}
+    inline static public function voices(song:String, difficulty:String = "normal", ?prefix:String = "")
+    {
+        var diff = Assets.getBytes("assets/songs/${song.toLowerCase()}/song/Voices$prefix-${difficulty.toLowerCase()}.$SOUND_EXT", null);
+        return OpenFlAssets.exists(diff) ? diff : Assets.getBytes("assets/songs/${song.toLowerCase()}/song/Voices$prefix.$SOUND_EXT", null);
+    }
 
-	inline static public function inst(song:String, difficulty:String = "normal", ?prefix:String = "")
-	{
-		var diff = getPath('songs/${song.toLowerCase()}/song/Inst$prefix-${difficulty.toLowerCase()}.$SOUND_EXT', null);
-		return OpenFlAssets.exists(diff) ? diff : getPath('songs/${song.toLowerCase()}/song/Inst$prefix.$SOUND_EXT', null);
-	}
+    inline static public function inst(song:String, difficulty:String = "normal", ?prefix:String = "")
+    {
+        var diff = Assets.getBytes("assets/songs/${song.toLowerCase()}/song/Inst$prefix-${difficulty.toLowerCase()}.$SOUND_EXT", null);
+        return OpenFlAssets.exists(diff) ? diff : Assets.getBytes("assets/songs/${song.toLowerCase()}/song/Inst$prefix.$SOUND_EXT", null);
+    }
 
-	static public function image(key:String, ?library:String, checkForAtlas:Bool = false, ?ext:String = "png")
-	{
-		if (checkForAtlas) {
-			var atlasPath = getPath('images/$key/spritemap.$ext', library);
-			var multiplePath = getPath('images/$key/1.$ext', library);
-			if (atlasPath != null && OpenFlAssets.exists(atlasPath)) return atlasPath.substr(0, atlasPath.length - 14);
-			if (multiplePath != null && OpenFlAssets.exists(multiplePath)) return multiplePath.substr(0, multiplePath.length - 6);
-		}
-		return getPath('images/$key.$ext', library);
-	}
+    static public function image(key:String, ?library:String, checkForAtlas:Bool = false, ?ext:String = "png")
+    {
+        if (checkForAtlas) {
+            var atlasPath = Assets.getBytes('images/$key/spritemap.$ext', library);
+            var multiplePath = Assets.getBytes('images/$key/1.$ext', library);
+            if (atlasPath != null && OpenFlAssets.exists(atlasPath)) return atlasPath.substr(0, atlasPath.length - 14);
+            if (multiplePath != null && OpenFlAssets.exists(multiplePath)) return multiplePath.substr(0, multiplePath.length - 6);
+        }
+        return Assets.getBytes('images/$key.$ext', library);
+    }
 
-	inline static public function script(key:String, ?library:String, isAssetsPath:Bool = false) {
-		var scriptPath = isAssetsPath ? key : getPath(key, library);
-		if (!OpenFlAssets.exists(scriptPath)) {
-			var p:String;
-			for(ex in Script.scriptExtensions) {
-				p = '$scriptPath.$ex';
-				if (OpenFlAssets.exists(p)) {
-					scriptPath = p;
-					break;
-				}
-			}
-		}
-		return scriptPath;
-	}
+    inline static public function script(key:String, ?library:String, isAssetsPath:Bool = false) {
+        var scriptPath = isAssetsPath ? key : Assets.getBytes(key, library);
+        if (!OpenFlAssets.exists(scriptPath)) {
+            var p:String;
+            for(ex in Script.scriptExtensions) {
+                p = '$scriptPath.$ex';
+                if (OpenFlAssets.exists(p)) {
+                    scriptPath = p;
+                    break;
+                }
+            }
+        }
+        return scriptPath;
+    }
 
-	static public function chart(song:String, ?difficulty:String = "normal"):String
-	{
-		difficulty = difficulty.toLowerCase();
-		song = song.toLowerCase();
+    static public function chart(song:String, ?difficulty:String = "normal"):String
+    {
+        difficulty = difficulty.toLowerCase();
+        song = song.toLowerCase();
 
-		return getPath('songs/$song/charts/$difficulty.json', null);
-	}
+        return Assets.getBytes("assets/songs/$song/charts/$difficulty.json", null);
+    }
 
-	inline static public function character(character:String):String
-	{
-		return getPath('data/characters/$character.xml', null);
-	}
+    inline static public function character(character:String):String
+    {
+        return Assets.getBytes("assets/data/characters/$character.xml", null);
+    }
 
 	/**
 	 * Gets the name of a registered font.
@@ -138,39 +137,39 @@ class Paths
 		return OpenFlAssets.exists(font, FONT) ? OpenFlAssets.getFont(font).fontName : font;
 	}
 
-	inline static public function font(key:String)
-	{
-		return getPath('fonts/$key');
-	}
+    inline static public function font(key:String)
+    {
+        return Assets.getBytes("assets/fonts/$key");
+    }
 
-	inline static public function obj(key:String) {
-		return getPath('models/$key.obj');
-	}
+    inline static public function obj(key:String) {
+        return Assets.getBytes("models/$key.obj");
+    }
 
-	inline static public function dae(key:String) {
-		return getPath('models/$key.dae');
-	}
+    inline static public function dae(key:String) {
+        return Assets.getBytes("models/$key.dae");
+    }
 
-	inline static public function md2(key:String) {
-		return getPath('models/$key.md2');
-	}
+    inline static public function md2(key:String) {
+        return Assets.getBytes("models/$key.md2");
+    }
 
-	inline static public function md5(key:String) {
-		return getPath('models/$key.md5');
-	}
+    inline static public function md5(key:String) {
+        return Assets.getBytes("models/$key.md5");
+    }
 
-	inline static public function awd(key:String) {
-		return getPath('models/$key.awd');
-	}
+    inline static public function awd(key:String) {
+        return Assets.getBytes("models/$key.awd");
+    }
 
-	inline static public function getSparrowAtlas(key:String, ?library:String)
-		return FlxAtlasFrames.fromSparrow(image(key, library), file('images/$key.xml', library));
+inline static public function getSparrowAtlas(key:String, ?library:String)
+		return FlxAtlasFrames.fromSparrow(image(key, library), file("assets/images/$key.xml", library));
 
 	inline static public function getSparrowAtlasAlt(key:String)
 		return FlxAtlasFrames.fromSparrow('$key.png', '$key.xml');
 
 	inline static public function getPackerAtlas(key:String, ?library:String)
-		return FlxAtlasFrames.fromSpriteSheetPacker(image(key, library), file('images/$key.txt', library));
+		return FlxAtlasFrames.fromSpriteSheetPacker(image(key, library), file("assets/images/$key.txt", library));
 
 	inline static public function getPackerAtlasAlt(key:String)
 		return FlxAtlasFrames.fromSpriteSheetPacker('$key.png', '$key.txt');
@@ -181,109 +180,18 @@ class Paths
 	inline static public function getAsepriteAtlasAlt(key:String)
 		return FlxAtlasFrames.fromAseprite('$key.png', '$key.json');
 
-	inline static public function getAssetsRoot():String
-		return ModsFolder.currentModFolder != null ? '${ModsFolder.modsPath}${ModsFolder.currentModFolder}' : #if (sys && !mobile && TEST_BUILD) './${Main.pathBack}assets/' #else 'assets' #end;
+    inline static public function getAssetsRoot():String
+        return ModsFolder.currentModFolder != null ? '${ModsFolder.modsPath}${ModsFolder.currentModFolder}' : 'assets';
 
-	/**
-	 * Gets frames at specified path.
-	 * @param key Path to the frames
-	 * @param library (Additional) library to load the frames from.
-	 */
-	public static function getFrames(key:String, assetsPath:Bool = false, ?library:String) {
-		if (tempFramesCache.exists(key)) {
-			var frames = tempFramesCache[key];
-			if (frames.parent != null && frames.parent.bitmap != null && frames.parent.bitmap.readable)
-				return frames;
-			else
-				tempFramesCache.remove(key);
-		}
-		return tempFramesCache[key] = loadFrames(assetsPath ? key : Paths.image(key, library, true));
-	}
-
-	/**
-	 * Checks if the images needed for using getFrames() exist.
-	 * @param key Path to the image
-	 * @param checkAtlas Whenever to check for the Animation.json file (used in FlxAnimate)
-	 * @param assetsPath Whenever to use the raw path or to pass it through Paths.image()
-	 * @param library (Additional) library to load the frames from.
-	 * @return True if the images exist, false otherwise.
-	**/
-	public static function framesExists(key:String, checkAtlas:Bool = false, checkMulti:Bool = true, assetsPath:Bool = false, ?library:String) {
-		var path = assetsPath ? key : Paths.image(key, library, true);
-		var noExt = Path.withoutExtension(path);
-		if(checkAtlas && Assets.exists('$noExt/Animation.json'))
-			return true;
-		if(checkMulti && Assets.exists('$noExt/1.png'))
-			return true;
-		if(Assets.exists('$noExt.xml'))
-			return true;
-		if(Assets.exists('$noExt.txt'))
-			return true;
-		if(Assets.exists('$noExt.json'))
-			return true;
-		return false;
-	}
-
-	/**
-	 * Loads frames from a specific image path. Supports Sparrow Atlases, Packer Atlases, and multiple spritesheets.
-	 * @param path Path to the image
-	 * @param Unique Whenever the image should be unique in the cache
-	 * @param Key Key to the image in the cache
-	 * @param SkipAtlasCheck Whenever the atlas check should be skipped.
-	 * @return FlxFramesCollection Frames
-	 */
-	static function loadFrames(path:String, Unique:Bool = false, Key:String = null, SkipAtlasCheck:Bool = false, SkipMultiCheck:Bool = false):FlxFramesCollection {
-		var noExt = Path.withoutExtension(path);
-
-		if (!SkipMultiCheck && Assets.exists('$noExt/1.png')) {
-			// MULTIPLE SPRITESHEETS!!
-
-			var graphic = FlxG.bitmap.add("flixel/images/logo/default.png", false, '$noExt/mult');
-			var frames = MultiFramesCollection.findFrame(graphic);
-			if (frames != null)
-				return frames;
-
-			trace("no frames yet for multiple atlases!!");
-			var cur = 1;
-			var finalFrames = new MultiFramesCollection(graphic);
-			while(Assets.exists('$noExt/$cur.png')) {
-				var spr = loadFrames('$noExt/$cur.png', false, null, false, true);
-				finalFrames.addFrames(spr);
-				cur++;
-			}
-			return finalFrames;
-		} else if (Assets.exists('$noExt.xml')) {
-			return Paths.getSparrowAtlasAlt(noExt);
-		} else if (Assets.exists('$noExt.txt')) {
-			return Paths.getPackerAtlasAlt(noExt);
-		} else if (Assets.exists('$noExt.json')) {
-			return Paths.getAsepriteAtlasAlt(noExt);
-		}
-
-		var graph:FlxGraphic = FlxG.bitmap.add(path, Unique, Key);
-		if (graph == null)
-			return null;
-		return graph.imageFrame;
-	}
-	static public function getFolderDirectories(key:String, addPath:Bool = false, source:AssetsLibraryList.AssetSource = BOTH):Array<String> {
-		if (!key.endsWith("/")) key += "/";
-		var content = assetsTree.getFolders('assets/$key', source);
-		if (addPath) {
-			for(k=>e in content)
-				content[k] = '$key$e';
-		}
-		return content;
-	}
-	static public function getFolderContent(key:String, addPath:Bool = false, source:AssetsLibraryList.AssetSource = BOTH):Array<String> {
-		// designed to work both on windows and web
-		if (!key.endsWith("/")) key += "/";
-		var content = assetsTree.getFiles('assets/$key', source);
-		if (addPath) {
-			for(k=>e in content)
-				content[k] = '$key$e';
-		}
-		return content;
-		/*
+    static public function getFolderDirectories(key:String, addPath:Bool = false, source:AssetsLibraryList.AssetSource = BOTH):Array<String> {
+        if (!key.endsWith("/")) key += "/";
+        var content = assetsTree.getFiles('assets/$key', source);
+        if (addPath) {
+            for(k=>e in content)
+                content[k] = '$key$e';
+        }
+        return content;
+/*
 		if (!key.endsWith("/")) key = key + "/";
 
 		if (ModsFolder.currentModFolder == null && !scanSource)

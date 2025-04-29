@@ -16,75 +16,93 @@ import mobile.funkin.backend.system.CopyState;
  * Simple state used for loading the game
  */
 class MainState extends FlxState {
-	public static var initiated:Bool = false;
-	public static var betaWarningShown:Bool = false;
-	public override function create() {
-		super.create();
-		#if mobile
-		funkin.backend.system.Main.framerateSprite.setScale();
-		#end
-		if (!initiated)
-		{
-			Main.loadGameSettings();
-			#if mobile
-			if (!CopyState.checkExistingFiles())
-			{
-				FlxG.switchState(new CopyState());
-				return;
-			}
-			#end
-			#if TOUCH_CONTROLS
-			mobile.funkin.backend.utils.MobileData.init();
-			#end
-		}
-		initiated = true;
+    public static var initiated:Bool = false;
+    public static var betaWarningShown:Bool = false;
 
-		#if sys
-		CoolUtil.deleteFolder('.temp/'); // delete temp folder
-		#end
-		Options.save();
+    public override function create() {
+        super.create();
 
-		FlxG.bitmap.reset();
-		FlxG.sound.destroy(true);
+        #if mobile
+        funkin.backend.system.Main.framerateSprite.setScale();
+        #end
 
-		Paths.assetsTree.reset();
+        if (!initiated) {
+            Main.loadGameSettings();
 
-		#if MOD_SUPPORT
-		var _lowPriorityAddons:Array<String> = [];
-		var _highPriorityAddons:Array<String> = [];
-		var _noPriorityAddons:Array<String> = [];
-		if (FileSystem.exists(ModsFolder.addonsPath) && FileSystem.isDirectory(ModsFolder.addonsPath)) {
-			for(i=>addon in [for(dir in FileSystem.readDirectory(ModsFolder.addonsPath)) if (FileSystem.isDirectory('${ModsFolder.addonsPath}$dir')) dir]) {
-				if (addon.startsWith("[LOW]")) _lowPriorityAddons.insert(0, addon);
-				else if (addon.startsWith("[HIGH]")) _highPriorityAddons.insert(0, addon);
-				else _noPriorityAddons.insert(0, addon);
-			}
-			for (addon in _lowPriorityAddons)
-				Paths.assetsTree.addLibrary(ModsFolder.loadModLib('${ModsFolder.addonsPath}$addon', StringTools.ltrim(addon.substr("[LOW]".length))));
-		}
-		if (ModsFolder.currentModFolder != null)
-			Paths.assetsTree.addLibrary(ModsFolder.loadModLib('${ModsFolder.modsPath}${ModsFolder.currentModFolder}', ModsFolder.currentModFolder));
+            #if mobile
+            if (!CopyState.checkExistingFiles()) {
+                FlxG.switchState(new CopyState());
+                return;
+            }
+			// Verificação de arquivos internos
+            //if (!LimeAssets.exists("assets/some_required_file")) {
+            //    throw "Required internal file is missing!";
+            //}
+            #end
 
-		if (FileSystem.exists(ModsFolder.addonsPath) && FileSystem.isDirectory(ModsFolder.addonsPath)){
-			for (addon in _noPriorityAddons) Paths.assetsTree.addLibrary(ModsFolder.loadModLib('${ModsFolder.addonsPath}$addon', addon));
-			for (addon in _highPriorityAddons) Paths.assetsTree.addLibrary(ModsFolder.loadModLib('${ModsFolder.addonsPath}$addon', StringTools.ltrim(addon.substr("[HIGH]".length))));
-		}
-		#end
+            #if TOUCH_CONTROLS
+            mobile.funkin.backend.utils.MobileData.init();
+            #end
+        }
 
-		MusicBeatTransition.script = "";
-		Main.refreshAssets();
-		ModsFolder.onModSwitch.dispatch(ModsFolder.currentModFolder);
-		DiscordUtil.init();
-		EventsData.reloadEvents();
-		TitleState.initialized = false;
+        initiated = true;
 
-		if (betaWarningShown)
-			FlxG.switchState(new TitleState());
-		else {
-			FlxG.switchState(new BetaWarningState());
-			betaWarningShown = true;
-		}
+        #if sys
+        // Comentado para evitar manipulação de arquivos externos
+        // CoolUtil.deleteFolder('.temp/'); // delete temp folder
+        #end
 
-		CoolUtil.safeAddAttributes('./.temp/', NativeAPI.FileAttribute.HIDDEN);
-	}
+        Options.save();
+
+        FlxG.bitmap.reset();
+        FlxG.sound.destroy(true);
+
+        Paths.assetsTree.reset();
+
+        #if MOD_SUPPORT
+        var _lowPriorityAddons:Array<String> = [];
+        var _highPriorityAddons:Array<String> = [];
+        var _noPriorityAddons:Array<String> = [];
+
+        // Substituir manipulação de arquivos externos por verificações internas
+        if (LimeAssets.exists(ModsFolder.addonsPath)) {
+            var addonList = LimeAssets.list(ModsFolder.addonsPath);
+            for (addon in addonList) {
+                if (addon.startsWith("[LOW]")) _lowPriorityAddons.insert(0, addon);
+                else if (addon.startsWith("[HIGH]")) _highPriorityAddons.insert(0, addon);
+                else _noPriorityAddons.insert(0, addon);
+            }
+
+            for (addon in _lowPriorityAddons)
+                Paths.assetsTree.addLibrary(ModsFolder.loadModLib('${ModsFolder.addonsPath}$addon', StringTools.ltrim(addon.substr("[LOW]".length))));
+        }
+
+        if (ModsFolder.currentModFolder != null)
+            Paths.assetsTree.addLibrary(ModsFolder.loadModLib('${ModsFolder.modsPath}${ModsFolder.currentModFolder}', ModsFolder.currentModFolder));
+
+        if (LimeAssets.exists(ModsFolder.addonsPath)) {
+            for (addon in _noPriorityAddons)
+                Paths.assetsTree.addLibrary(ModsFolder.loadModLib('${ModsFolder.addonsPath}$addon', addon));
+            for (addon in _highPriorityAddons)
+                Paths.assetsTree.addLibrary(ModsFolder.loadModLib('${ModsFolder.addonsPath}$addon', StringTools.ltrim(addon.substr("[HIGH]".length))));
+        }
+        #end
+
+        MusicBeatTransition.script = "";
+        Main.refreshAssets();
+        ModsFolder.onModSwitch.dispatch(ModsFolder.currentModFolder);
+        DiscordUtil.init();
+        EventsData.reloadEvents();
+        TitleState.initialized = false;
+
+        if (betaWarningShown)
+            FlxG.switchState(new TitleState());
+        else {
+            FlxG.switchState(new BetaWarningState());
+            betaWarningShown = true;
+        }
+
+        // Comentado para evitar manipulação de arquivos externos
+        // CoolUtil.safeAddAttributes('./.temp/', NativeAPI.FileAttribute.HIDDEN);
+    }
 }

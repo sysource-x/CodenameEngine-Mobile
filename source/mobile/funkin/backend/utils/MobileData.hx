@@ -33,56 +33,53 @@ import flixel.util.FlxSave;
  * ...
  * @author: Karim Akra
  */
-class MobileData
-{
-	public static var actionModes:Map<String, TouchButtonsData> = new Map();
-	public static var dpadModes:Map<String, TouchButtonsData> = new Map();
+class MobileData {
+    public static var actionModes:Map<String, TouchButtonsData> = new Map();
+    public static var dpadModes:Map<String, TouchButtonsData> = new Map();
 
-	public static var save:FlxSave;
+    public static var save:FlxSave;
 
-	public static function init()
-	{
-		save = new FlxSave();
-		save.bind('MobileControls', #if sys 'YoshiCrafter29/CodenameEngine' #else 'CodenameEngine' #end);
+    public static function init() {
+        save = new FlxSave();
+        save.bind('MobileControls', #if sys 'YoshiCrafter29/CodenameEngine' #else 'CodenameEngine' #end);
 
-		for (folder in [
-			'${ModsFolder.modsPath}${ModsFolder.currentModFolder}/mobile',
-			Paths.getPath('mobile')
-		])
-			if (FileSystem.exists(folder) && FileSystem.isDirectory(folder))
-			{
-				setMap('$folder/DPadModes', dpadModes);
-				setMap('$folder/ActionModes', actionModes);
-			}
-	}
+        // Ajustado para usar apenas arquivos internos
+        for (folder in [
+            'assets/mobile',
+            'assets/${ModsFolder.currentModFolder}/mobile'
+        ]) {
+            if (Assets.exists(folder)) {
+                setMap('$folder/DPadModes', dpadModes);
+                setMap('$folder/ActionModes', actionModes);
+            }
+        }
+    }
 
-	public static function setMap(folder:String, map:Map<String, TouchButtonsData>)
-	{
-		for (file in FileSystem.readDirectory(folder))
-		{
-			if (Path.extension(file) == 'json')
-			{
-				file = Path.join([folder, Path.withoutDirectory(file)]);
-				var str = File.getContent(file);
-				var json:TouchButtonsData = cast Json.parse(str);
-				var mapKey:String = Path.withoutDirectory(Path.withoutExtension(file));
-				map.set(mapKey, json);
-			}
-		}
-	}
+    public static function setMap(folder:String, map:Map<String, TouchButtonsData>) {
+        var fileList = Assets.list(folder); // Lista arquivos no diretório interno
+        for (file in fileList) {
+            if (Path.extension(file) == 'json') {
+                var filePath = '$folder/$file';
+                if (Assets.exists(filePath)) {
+                    var str = Assets.getText(filePath);
+                    var json:TouchButtonsData = cast Json.parse(str);
+                    var mapKey:String = Path.withoutExtension(file);
+                    map.set(mapKey, json);
+                }
+            }
+        }
+    }
 }
 
-typedef TouchButtonsData =
-{
-	buttons:Array<ButtonsData>
+typedef TouchButtonsData = {
+    buttons:Array<ButtonsData>
 }
 
-typedef ButtonsData =
-{
-	button:String, // what TouchButton should be used, must be a valid TouchButton var from TouchPad as a string.
-	graphic:String, // the graphic of the button, usually can be located in the TouchPad xml .
-	x:Float, // the button's X position on screen.
-	y:Float, // the button's Y position on screen.
-	color:String // the button color, default color is white.
+typedef ButtonsData = {
+    button:String, // The button to be used, must be a valid TouchButton var from TouchPad as a string.
+    graphic:String, // The graphic of the button, usually located in the TouchPad XML.
+    x:Float, // The button's X position on screen.
+    y:Float, // The button's Y position on screen.
+    color:String // The button color, default color is white.
 }
 #end

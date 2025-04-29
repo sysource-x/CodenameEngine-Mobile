@@ -30,19 +30,25 @@ import flixel.group.FlxSpriteGroup;
 import flixel.util.FlxSignal.FlxTypedSignal;
 import openfl.display.BitmapData;
 import openfl.utils.Assets;
+import flixel.util.FlxDestroyUtil;
+import flixel.FlxSprite;
+import flixel.math.FlxPoint;
+import flixel.util.FlxColor;
+import funkin.backend.assets.ModsFolder;
+import funkin.backend.utils.Paths;
 
 /**
  * ...
  * @author: Karim Akra and Homura Akemi (HomuHomu833)
+ * CHICKEN JOCKEYYYYYYYYYYYYYYYY
  */
 @:access(mobile.objects.TouchButton)
-class TouchPad extends MobileInputManager
-{
-	public var buttonLeft:TouchButton = new TouchButton(0, 0, [MobileInputID.LEFT]);
-	public var buttonUp:TouchButton = new TouchButton(0, 0, [MobileInputID.UP]);
-	public var buttonRight:TouchButton = new TouchButton(0, 0, [MobileInputID.RIGHT]);
-	public var buttonDown:TouchButton = new TouchButton(0, 0, [MobileInputID.DOWN]);
-	public var buttonLeft2:TouchButton = new TouchButton(0, 0, [MobileInputID.LEFT2]);
+class TouchPad extends MobileInputManager {
+    public var buttonLeft:TouchButton = new TouchButton(0, 0, [MobileInputID.LEFT]);
+    public var buttonUp:TouchButton = new TouchButton(0, 0, [MobileInputID.UP]);
+    public var buttonRight:TouchButton = new TouchButton(0, 0, [MobileInputID.RIGHT]);
+    public var buttonDown:TouchButton = new TouchButton(0, 0, [MobileInputID.DOWN]);
+    public var buttonLeft2:TouchButton = new TouchButton(0, 0, [MobileInputID.LEFT2]);
 	public var buttonUp2:TouchButton = new TouchButton(0, 0, [MobileInputID.UP2]);
 	public var buttonRight2:TouchButton = new TouchButton(0, 0, [MobileInputID.RIGHT2]);
 	public var buttonDown2:TouchButton = new TouchButton(0, 0, [MobileInputID.DOWN2]);
@@ -73,162 +79,151 @@ class TouchPad extends MobileInputManager
 	public var buttonY:TouchButton = new TouchButton(0, 0, [MobileInputID.Y]);
 	public var buttonZ:TouchButton = new TouchButton(0, 0, [MobileInputID.Z]);
 
-	public var instance:MobileInputManager;
-	public var curDPadMode:String = "NONE";
-	public var curActionMode:String = "NONE";
+    public var instance:MobileInputManager;
+    public var curDPadMode:String = "NONE";
+    public var curActionMode:String = "NONE";
 
-	/**
-	 * Create a gamepad.
-	 *
-	 * @param   DPadMode     The D-Pad mode. `LEFT_FULL` for example.
-	 * @param   ActionMode   The action buttons mode. `A_B_C` for example.
-	 */
-	public function new(DPad:String, Action:String)
-	{
-		super();
+    /**
+     * Create a gamepad.
+     *
+     * @param   DPadMode     The D-Pad mode. `LEFT_FULL` for example.
+     * @param   ActionMode   The action buttons mode. `A_B_C` for example.
+     */
+    public function new(DPad:String, Action:String) {
+        super();
 
-		if (DPad != "NONE")
-		{
-			if (!MobileData.dpadModes.exists(DPad))
-				throw 'The touchPad dpadMode "$DPad" doesn\'t exist.';
+        if (DPad != "NONE") {
+            if (!MobileData.dpadModes.exists(DPad))
+                throw 'The touchPad dpadMode "$DPad" doesn\'t exist.';
 
-			for (buttonData in MobileData.dpadModes.get(DPad).buttons)
-			{
-				Reflect.setField(this, buttonData.button,
-					createButton(buttonData.x, buttonData.y, buttonData.graphic, getColorFromString(buttonData.color),
-						Reflect.getProperty(this, buttonData.button).IDs));
-				add(Reflect.field(this, buttonData.button));
-			}
-		}
+            for (buttonData in MobileData.dpadModes.get(DPad).buttons) {
+                Reflect.setField(this, buttonData.button,
+                    createButton(buttonData.x, buttonData.y, buttonData.graphic, getColorFromString(buttonData.color),
+                        Reflect.getProperty(this, buttonData.button).IDs));
+                add(Reflect.field(this, buttonData.button));
+            }
+        }
 
-		if (Action != "NONE")
-		{
-			if (!MobileData.actionModes.exists(Action))
-				throw 'The touchPad actionMode "$Action" doesn\'t exist.';
+        if (Action != "NONE") {
+            if (!MobileData.actionModes.exists(Action))
+                throw 'The touchPad actionMode "$Action" doesn\'t exist.';
 
-			for (buttonData in MobileData.actionModes.get(Action).buttons)
-			{
-				Reflect.setField(this, buttonData.button,
-					createButton(buttonData.x, buttonData.y, buttonData.graphic, getColorFromString(buttonData.color),
-						Reflect.getProperty(this, buttonData.button).IDs));
-				add(Reflect.field(this, buttonData.button));
-			}
-		}
+            for (buttonData in MobileData.actionModes.get(Action).buttons) {
+                Reflect.setField(this, buttonData.button,
+                    createButton(buttonData.x, buttonData.y, buttonData.graphic, getColorFromString(buttonData.color),
+                        Reflect.getProperty(this, buttonData.button).IDs));
+                add(Reflect.field(this, buttonData.button));
+            }
+        }
 
-		curDPadMode = DPad;
-		curActionMode = Action;
-		alpha = Options.touchPadAlpha;
-		scrollFactor.set();
-		updateTrackedButtons();
+        curDPadMode = DPad;
+        curActionMode = Action;
+        alpha = Options.touchPadAlpha;
+        scrollFactor.set();
+        updateTrackedButtons();
 
-		instance = this;
-	}
+        instance = this;
+    }
 
-	override public function destroy()
-	{
-		super.destroy();
+    override public function destroy() {
+        super.destroy();
 
-		for (fieldName in Reflect.fields(this))
-		{
-			var field = Reflect.field(this, fieldName);
-			if (Std.isOfType(field, TouchButton))
-				Reflect.setField(this, fieldName, FlxDestroyUtil.destroy(field));
-		}
-	}
+        for (fieldName in Reflect.fields(this)) {
+            var field = Reflect.field(this, fieldName);
+            if (Std.isOfType(field, TouchButton))
+                Reflect.setField(this, fieldName, FlxDestroyUtil.destroy(field));
+        }
+    }
 
-	private function createButton(X:Float, Y:Float, Graphic:String, ?Color:FlxColor = 0xFFFFFF, ?IDs:Array<MobileInputID>):TouchButton
-	{
-		var button = new TouchButton(X, Y, IDs);
-		var buttonLabelGraphicPath:String = "";
+    private function createButton(X:Float, Y:Float, Graphic:String, ?Color:FlxColor = 0xFFFFFF, ?IDs:Array<MobileInputID>):TouchButton {
+        var button = new TouchButton(X, Y, IDs);
+        var buttonLabelGraphicPath:String = "";
 
-		if (Options.oldPadTexture)
-		{
-			var frames:FlxGraphic;
-			for (folder in [
-				'${ModsFolder.modsPath}${ModsFolder.currentModFolder}/mobile',
-				Paths.getPath('mobile')
-			])
-				for (file in [Graphic.toUpperCase()])
-				{
-					final path:String = '${folder}/images/virtualpad/${file}.png';
-					if (FileSystem.exists(path))
-						buttonLabelGraphicPath = path;
-				}
+        if (Options.oldPadTexture) {
+            var frames:FlxGraphic;
+            for (folder in [
+                'assets/${ModsFolder.currentModFolder}/mobile',
+                'assets/mobile'
+            ]) {
+                for (file in [Graphic.toUpperCase()]) {
+                    final path:String = '${folder}/images/virtualpad/${file}.png';
+                    if (Assets.exists(path)) {
+                        buttonLabelGraphicPath = path;
+                        break;
+                    }
+                }
+            }
 
-			if (FileSystem.exists(buttonLabelGraphicPath))
-				frames = FlxGraphic.fromBitmapData(BitmapData.fromBytes(File.getBytes(buttonLabelGraphicPath)));
-			else
-				frames = FlxGraphic.fromBitmapData(Assets.getBitmapData('assets/mobile/images/virtualpad/default.png'));
+            if (Assets.exists(buttonLabelGraphicPath))
+                frames = FlxGraphic.fromBitmapData(BitmapData.fromBytes(Assets.getBytes(buttonLabelGraphicPath)));
+            else
+                frames = FlxGraphic.fromBitmapData(Assets.getBitmapData('assets/mobile/images/virtualpad/default.png'));
 
-			button.antialiasing = Options.antialiasing;
-			button.frames = FlxTileFrames.fromGraphic(frames, FlxPoint.get(Std.int(frames.width / 2), frames.height));
+            button.antialiasing = Options.antialiasing;
+            button.frames = FlxTileFrames.fromGraphic(frames, FlxPoint.get(Std.int(frames.width / 2), frames.height));
 
-			if (Color != -1)
-				button.color = Color;
-		}
-		else
-		{
-			var buttonGraphicPath:String = "";
-			for (folder in [
-				'${ModsFolder.modsPath}${ModsFolder.currentModFolder}/mobile',
-				Paths.getPath('mobile')
-			])
-				for (file in ["bg", Graphic.toUpperCase()])
-				{
-					final path:String = '${folder}/images/touchpad/${file}.png';
-					if (FileSystem.exists(path))
-						if (file == "bg")
-							buttonGraphicPath = path;
-						else
-							buttonLabelGraphicPath = path;
-				}
+            if (Color != -1)
+                button.color = Color;
+        } else {
+            var buttonGraphicPath:String = "";
+            for (folder in [
+                'assets/${ModsFolder.currentModFolder}/mobile',
+                'assets/mobile'
+            ]) {
+                for (file in ["bg", Graphic.toUpperCase()]) {
+                    final path:String = '${folder}/images/touchpad/${file}.png';
+                    if (Assets.exists(path)) {
+                        if (file == "bg")
+                            buttonGraphicPath = path;
+                        else
+                            buttonLabelGraphicPath = path;
+                    }
+                }
+            }
 
-			button.label = new FlxSprite();
-			button.loadGraphic(buttonGraphicPath);
-			button.label.loadGraphic(buttonLabelGraphicPath);
-			button.scale.set(0.243, 0.243);
-			button.label.antialiasing = button.antialiasing = Options.antialiasing;
-			button.color = Color;
-		}
+            button.label = new FlxSprite();
+            button.loadGraphic(buttonGraphicPath);
+            button.label.loadGraphic(buttonLabelGraphicPath);
+            button.scale.set(0.243, 0.243);
+            button.label.antialiasing = button.antialiasing = Options.antialiasing;
+            button.color = Color;
+        }
 
-		button.updateHitbox();
-		button.updateLabelPosition();
+        button.updateHitbox();
+        button.updateLabelPosition();
 
-		button.bounds.makeGraphic(Std.int(button.width - 50), Std.int(button.height - 50), FlxColor.TRANSPARENT);
-		button.centerBounds();
+        button.bounds.makeGraphic(Std.int(button.width - 50), Std.int(button.height - 50), FlxColor.TRANSPARENT);
+        button.centerBounds();
 
-		button.immovable = true;
-		button.solid = button.moves = false;
-		button.tag = Graphic.toUpperCase();
+        button.immovable = true;
+        button.solid = button.moves = false;
+        button.tag = Graphic.toUpperCase();
 
-		if (Options.oldPadTexture)
-		{
-			button.statusBrightness = [1, 0.8, 0.4];
-			button.statusIndicatorType = BRIGHTNESS;
-			button.indicateStatus();
-			button.parentAlpha = button.alpha;
-		}
+        if (Options.oldPadTexture) {
+            button.statusBrightness = [1, 0.8, 0.4];
+            button.statusIndicatorType = BRIGHTNESS;
+            button.indicateStatus();
+            button.parentAlpha = button.alpha;
+        }
 
-		return button;
-	}
+        return button;
+    }
 
-	private static function getColorFromString(color:String):FlxColor
-	{
-		var hideChars = ~/[\t\n\r]/;
-		var color:String = hideChars.split(color).join('').trim();
-		if (color.startsWith('0x'))
-			color = color.substring(color.length - 6);
+    private static function getColorFromString(color:String):FlxColor {
+        var hideChars = ~/[\t\n\r]/;
+        var color:String = hideChars.split(color).join('').trim();
+        if (color.startsWith('0x'))
+            color = color.substring(color.length - 6);
 
-		var colorNum:Null<FlxColor> = FlxColor.fromString(color);
-		if (colorNum == null)
-			colorNum = FlxColor.fromString('#$color');
-		return colorNum != null ? colorNum : FlxColor.WHITE;
-	}
+        var colorNum:Null<FlxColor> = FlxColor.fromString(color);
+        if (colorNum == null)
+            colorNum = FlxColor.fromString('#$color');
+        return colorNum != null ? colorNum : FlxColor.WHITE;
+    }
 
-	override function set_alpha(Value):Float
-	{
-		forEachAlive((button:TouchButton) -> button.parentAlpha = Value);
-		return super.set_alpha(Value);
-	}
+    override function set_alpha(Value):Float {
+        forEachAlive((button:TouchButton) -> button.parentAlpha = Value);
+        return super.set_alpha(Value);
+    }
 }
 #end

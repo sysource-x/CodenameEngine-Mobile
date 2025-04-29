@@ -22,8 +22,9 @@ class ModSwitchMenu extends MusicBeatSubstate {
 		bg.alpha = 0;
 		FlxTween.tween(bg, {alpha: 0.5}, 0.25, {ease: FlxEase.cubeOut});
 
-		mods = ModsFolder.getModsList();
-		mods.push(null);
+		// Ajustado para usar apenas mods internos
+		mods = ModsFolder.getModsList(); // Lista mods internos
+		mods.push(null); // Adiciona a opção de desativar mods
 
 		alphabets = new FlxTypedGroup<Alphabet>();
 		for(mod in mods) {
@@ -45,6 +46,7 @@ class ModSwitchMenu extends MusicBeatSubstate {
 		changeSelection((controls.DOWN_P ? 1 : 0) + (controls.UP_P ? -1 : 0) - FlxG.mouse.wheel);
 
 		if (controls.ACCEPT) {
+			// Ajustado para alternar mods internos
 			ModsFolder.switchMod(mods[curSelected]);
 			close();
 		}

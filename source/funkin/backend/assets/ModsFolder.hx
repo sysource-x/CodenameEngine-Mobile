@@ -54,8 +54,6 @@ class ModsFolder {
 	 * Initialises `mods` folder.
 	 */
 	public static function init() {
-		if (!FileSystem.exists(modsPath)) FileSystem.createDirectory(modsPath);
-		if (!FileSystem.exists(addonsPath)) FileSystem.createDirectory(addonsPath);
 		if(!getModsList().contains(Options.lastLoadedMod))
 			Options.lastLoadedMod = null;
 	}
@@ -82,11 +80,16 @@ class ModsFolder {
 	 */
 	public static function loadModLib(path:String, force:Bool = false, ?modName:String) {
 		#if MOD_SUPPORT
-		if (FileSystem.exists('$path.zip'))
-			return loadLibraryFromZip('$path'.toLowerCase(), '$path.zip', force, modName);
-		else
-			return loadLibraryFromFolder('$path'.toLowerCase(), '$path', force, modName);
+		var cleanPath = path.toLowerCase();
+		var zipPath = 'assets/mods/$cleanPath.zip';
 
+		if (Assets.exists(zipPath, AssetType.BINARY)) {
+			// Mod in ZIP
+			return loadLibraryFromZip(cleanPath, '$cleanPath.zip', force, modName);
+		} else {
+			// Mod in folder
+			return loadLibraryFromFolder(cleanPath, cleanPath, force, modName);
+		}
 		#else
 		return null;
 		#end
@@ -95,26 +98,16 @@ class ModsFolder {
 	public static function getModsList():Array<String> {
 		var mods:Array<String> = [];
 		#if MOD_SUPPORT
-		final modsList:Array<String> = FileSystem.readDirectory(modsPath);
-
-		if (modsList == null || modsList.length <= 0)
-			return mods;
-
-		for (modFolder in modsList) {
-			if (FileSystem.isDirectory('${modsPath}${modFolder}')) {
-				mods.push(modFolder);
-			} else {
-				var ext = Path.extension(modFolder).toLowerCase();
-				switch(ext) {
-					case 'zip':
-						// is a zip mod!!
-						mods.push(Path.withoutExtension(modFolder));
-				}
-			}
+		try {
+			var rawMods = Assets.getText("assets/mods/modsList.json"); // JSON file with mod names
+			mods = Json.parse(rawMods);
+		} catch(e) {
+			trace("Could not load mods list: " + e);
 		}
 		#end
 		return mods;
 	}
+
 	public static function getLoadedMods():Array<String> {
 		var libs = [];
 		for (i in Paths.assetsTree.libraries) {

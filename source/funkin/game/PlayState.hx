@@ -582,8 +582,8 @@ class PlayState extends MusicBeatState
 		detailsText = isStoryMode ? ("Story Mode: " + storyWeek.name) : "Freeplay";
 
 		// Checks if cutscene files exists
-		var cutscenePath = Paths.script('songs/${SONG.meta.name.toLowerCase()}/cutscene');
-		var endCutscenePath = Paths.script('songs/${SONG.meta.name.toLowerCase()}/cutscene-end');
+		var cutscenePath = Paths.script('assets/songs/${SONG.meta.name.toLowerCase()}/cutscene');
+		var endCutscenePath = Paths.script('assets/songs/${SONG.meta.name.toLowerCase()}/cutscene-end');
 		if (Assets.exists(cutscenePath)) cutscene = cutscenePath;
 		if (Assets.exists(endCutscenePath)) endCutscene = endCutscenePath;
 
@@ -610,7 +610,7 @@ class PlayState extends MusicBeatState
 				// case "":
 					// ADD YOUR HARDCODED SCRIPTS HERE!
 				default:
-					var scriptsFolders:Array<String> = ['songs/${SONG.meta.name.toLowerCase()}/scripts', 'data/charts/', 'songs/'];
+					var scriptsFolders:Array<String> = ['assets/songs/${SONG.meta.name.toLowerCase()}/scripts', 'assets/data/charts/', 'assets/songs/'];
 
 					for(folder in scriptsFolders) {
 						for(file in Paths.getFolderContent(folder, true, fromMods ? MODS : BOTH)) {
@@ -624,7 +624,7 @@ class PlayState extends MusicBeatState
 					var songEvents:Array<String> = [];
 					for (event in SONG.events) if (!songEvents.contains(event.name)) songEvents.push(event.name);
 
-					for (file in Paths.getFolderContent('data/events/', true, fromMods ? MODS : BOTH)) {
+					for (file in Paths.getFolderContent('assets/data/events/', true, fromMods ? MODS : BOTH)) {
 						var fileName:String = Path.withoutExtension(Path.withoutDirectory(file));
 						if (EventsData.eventsList.contains(fileName) && songEvents.contains(fileName)) {
 							addScript(file);
@@ -654,7 +654,7 @@ class PlayState extends MusicBeatState
 		generateSong(SONG);
 
 		for(noteType in SONG.noteTypes) {
-			var scriptPath = Paths.script('data/notes/${noteType}');
+			var scriptPath = Paths.script('assets/data/notes/${noteType}');
 			if (Assets.exists(scriptPath) && !scripts.contains(scriptPath)) {
 				var script = Script.create(scriptPath);
 				if (!(script is DummyScript)) {
@@ -847,12 +847,12 @@ class PlayState extends MusicBeatState
 		}
 
 		if (cutsceneScriptPath == null)
-			cutsceneScriptPath = Paths.script('songs/${SONG.meta.name.toLowerCase()}/${prefix}cutscene');
+			cutsceneScriptPath = Paths.script('assets/songs/${SONG.meta.name.toLowerCase()}/${prefix}cutscene');
 
 		inCutscene = true;
 		var videoCutscene = Paths.video('${PlayState.SONG.meta.name.toLowerCase()}-${prefix}cutscene');
-		var videoCutsceneAlt = Paths.file('songs/${PlayState.SONG.meta.name.toLowerCase()}/${prefix}cutscene.mp4');
-		var dialogue = Paths.file('songs/${PlayState.SONG.meta.name.toLowerCase()}/${prefix}dialogue.xml');
+		var videoCutsceneAlt = Paths.file('assets/songs/${PlayState.SONG.meta.name.toLowerCase()}/${prefix}cutscene.mp4');
+		var dialogue = Paths.file('assets/songs/${PlayState.SONG.meta.name.toLowerCase()}/${prefix}dialogue.xml');
 		persistentUpdate = true;
 		var toCall:Void->Void = function() {
 			if(checkSeen) seenCutscene = true;

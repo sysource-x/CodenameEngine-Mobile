@@ -64,7 +64,9 @@
 		<assets path="assets/"    rename="assets"	exclude="*.mp3" unless="web"/>
 	</section>
 
-	<assets path='mods' rename='mods' embed='false'/>
+	<assets path="assets/" rename='assets/' embed='false'/>
+
+	<assets path='assets/mods' rename='assets/mods' embed='false'/>
 	<assets path='art/readme.txt' rename='do NOT readme.txt' unless="mobile" />
 
 	<!-- OpenAL config -->
